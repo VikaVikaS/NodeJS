@@ -1,6 +1,6 @@
 import path from 'path';
 
-export const DB_PATH_USERS = path.join(__dirname, '../users.db');
+export const DB_PATH_USERS = path.join(__dirname, 'users.db');
 export const DB_PATH_EXERCISES = path.join(__dirname, 'exercises.db');
 
 export const ERRORS_LIST = {
