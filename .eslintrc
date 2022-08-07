@@ -1,0 +1,60 @@
+{
+  "env": {
+    "jest": true,
+    "node": true,
+    "es6": true
+  },
+  "extends": [
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "prettier"
+  ],
+  "rules": {
+    "max-len": [2, 120],
+    "object-curly-newline": 0,
+    "implicit-arrow-linebreak": 0,
+    "no-throw-literal": 0,
+    "no-console": "warn",
+    "import/prefer-default-export": 0,
+    "prefer-promise-reject-errors": 0,
+    "no-useless-constructor": "off",
+    "no-restricted-syntax": ["off", "ForOfStatement"],
+    "lines-between-class-members": "off",
+    "consistent-return": "off",
+    "prefer-arrow-callback": "off",
+    "func-names": "off",
+    "comma-dangle": "off",
+    "class-methods-use-this": "off",
+    "no-use-before-define": "off",
+    "no-shadow": "off",
+    "arrow-parens": "off",
+    "no-param-reassign": "off",
+    "max-classes-per-file": "off",
+    "no-await-in-loop": "off",
+    "no-plusplus": "off",
+    "curly": [2, "all"]
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".ts"]
+      }
+    }
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.spec.{js,ts}"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ]
+}

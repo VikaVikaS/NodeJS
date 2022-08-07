@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "target": "ES2019",
+    "outDir": "./public",
+    "module": "commonjs",
+    "baseUrl": "./",
+    "esModuleInterop": true
+  },
+  "exclude": ["node_modules"],
+  "include": ["**/*.ts"]
+}
