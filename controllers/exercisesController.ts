@@ -1,5 +1,4 @@
 import express from 'express';
-import Database from 'sqlite-async';
 import { format, add } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -8,7 +7,8 @@ import {
   UserExerciseLog,
 } from '../models/Exercise';
 import { getCurrentUser } from './userController';
-import { DB_PATH_EXERCISES, ERRORS_LIST } from '../constants';
+import { ERRORS_LIST } from '../constants';
+import { db } from '../db';
 
 async function createNewExercise(req: express.Request, res: express.Responses) {
   if (req.method !== 'POST') {
@@ -53,10 +53,6 @@ async function createNewExercise(req: express.Request, res: express.Responses) {
         .send(ERRORS_LIST.NOT_FOUND);
     }
 
-    const db = await Database.open(DB_PATH_EXERCISES);
-    await db.run(
-      'CREATE TABLE IF NOT EXISTS exercises(_id, exerciseId, description, duration, date)',
-    );
     await db.run(
       `INSERT INTO exercises(_id, exerciseId, description, duration, date) 
       VALUES 
@@ -108,7 +104,6 @@ async function getLogs(req: express.Request, res: express.Responses) {
       ? to
       : format(add(new Date(), { years: 100 }), 'yyyy-MM-dd');
 
-    const db = await Database.open(DB_PATH_EXERCISES);
     const totalAmount = await db.get(
       `
       SELECT
@@ -137,8 +132,6 @@ async function getLogs(req: express.Request, res: express.Responses) {
       fromDate,
       toDate,
     );
-
-    await db.close();
 
     const mappedExercises = exercises.map(
       (i: CreatedExerciseResponse) =>

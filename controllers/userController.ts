@@ -1,13 +1,12 @@
 import express from 'express';
-import Database from 'sqlite-async';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../models/User';
 
-import { ERRORS_LIST, DB_PATH_USERS } from '../constants';
+import { ERRORS_LIST } from '../constants';
+import { db } from '../db';
 
 export async function getCurrentUser(id: number) {
   try {
-    const db = await Database.open(DB_PATH_USERS);
     const user = await db.get(
       `
       SELECT
@@ -19,7 +18,6 @@ export async function getCurrentUser(id: number) {
       `,
       id,
     );
-    await db.close();
 
     return Promise.resolve(user || false);
   } catch (e) {
@@ -35,7 +33,6 @@ async function getAllUsers(req: express.Request, res: express.Response) {
   }
 
   try {
-    const db = await Database.open(DB_PATH_USERS);
     const allUsers = await db.all(
       `
       SELECT *
@@ -43,8 +40,6 @@ async function getAllUsers(req: express.Request, res: express.Response) {
         users
       `,
     );
-
-    await db.close();
 
     if (!allUsers.length) {
       return res
@@ -69,9 +64,6 @@ async function createNewUser(req: express.Request, res: express.Response) {
 
   try {
     const username = req.body.username;
-
-    const db = await Database.open(DB_PATH_USERS);
-    await db.run('CREATE TABLE IF NOT EXISTS users(id, username)');
 
     const isUserNameExists = await db.get(
       `
@@ -105,7 +97,6 @@ async function createNewUser(req: express.Request, res: express.Response) {
       userData.id,
       userData.username,
     );
-    await db.close();
 
     return res.status(200).json(userData);
   } catch (e) {
