@@ -18,17 +18,17 @@ async function createNewExercise(req: express.Request, res: express.Responses) {
   }
 
   if (!req.body._id) {
-    let error = ERRORS_LIST.MISSED_FIELD('User id');
+    const error = ERRORS_LIST.MISSED_FIELD('User id');
     return res.status(error.statusCode).send(error);
   }
 
   if (!req.body.description) {
-    let error = ERRORS_LIST.MISSED_FIELD('Description');
+    const error = ERRORS_LIST.MISSED_FIELD('Description');
     return res.status(error.statusCode).send(error);
   }
 
   if (!req.body.duration) {
-    let error = ERRORS_LIST.MISSED_FIELD('Duration');
+    const error = ERRORS_LIST.MISSED_FIELD('Duration');
     return res.status(error.statusCode).send(error);
   }
 
@@ -78,7 +78,6 @@ async function createNewExercise(req: express.Request, res: express.Responses) {
 
     return res.status(200).json(response);
   } catch (e) {
-    console.log(e);
     return res
       .status(ERRORS_LIST.INTERNAL_ERROR.statusCode)
       .send(ERRORS_LIST.INTERNAL_ERROR);
@@ -150,8 +149,6 @@ async function getLogs(req: express.Request, res: express.Responses) {
           date: i.date,
         } as Exercise),
     );
-
-    console.log(mappedExercises);
 
     const response = {
       ...userData,
