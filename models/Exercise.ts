@@ -1,15 +1,15 @@
 import { User } from './User';
 
 export interface Exercise {
-  id: number;
+  id: string;
   description: string;
   duration: number;
   date: string;
 }
 
 export interface CreatedExerciseResponse {
-  userId: number;
-  exerciseId: number;
+  userId: string;
+  exerciseId: string;
   duration: number;
   description: string;
   date: string;

@@ -1,5 +1,7 @@
 import express from 'express';
 import Database from 'sqlite-async';
+import { v4 as uuidv4 } from 'uuid';
+import { User } from '../models/User';
 
 import { ERRORS_LIST, DB_PATH_USERS } from '../constants';
 
@@ -53,8 +55,8 @@ async function getAllUsers(req: express.Request, res: express.Response) {
     return res.status(200).json(allUsers);
   } catch (e) {
     return res
-      .status(ERRORS_LIST.INTERNAL_ERROR.statusCode)
-      .send(ERRORS_LIST.INTERNAL_ERROR);
+      .status(ERRORS_LIST.NOT_FOUND.statusCode)
+      .send(ERRORS_LIST.NOT_FOUND);
   }
 }
 
@@ -89,18 +91,23 @@ async function createNewUser(req: express.Request, res: express.Response) {
         .send(ERRORS_LIST.ALREADY_EXISTS);
     }
 
+    const userData = {
+      id: uuidv4(),
+      username,
+    } as User;
+
     await db.run(
       `
       INSERT INTO 
         users(id, username) 
       VALUES 
         (?, ?)`,
-      Date.now(),
-      username,
+      userData.id,
+      userData.username,
     );
     await db.close();
 
-    return res.status(200).json({ id: Date.now(), username });
+    return res.status(200).json(userData);
   } catch (e) {
     return res
       .status(ERRORS_LIST.INTERNAL_ERROR.statusCode)

@@ -1,7 +1,12 @@
 import express from 'express';
 import Database from 'sqlite-async';
 import { format, add } from 'date-fns';
-import { CreatedExerciseResponse, UserExerciseLog } from '../models/Exercise';
+import { v4 as uuidv4 } from 'uuid';
+import {
+  Exercise,
+  CreatedExerciseResponse,
+  UserExerciseLog,
+} from '../models/Exercise';
 import { getCurrentUser } from './userController';
 import { DB_PATH_EXERCISES, ERRORS_LIST } from '../constants';
 
@@ -13,24 +18,28 @@ async function createNewExercise(req: express.Request, res: express.Responses) {
   }
 
   if (!req.body._id) {
-    return res.status(400).send(ERRORS_LIST.MISSED_FIELD('User id'));
+    let error = ERRORS_LIST.MISSED_FIELD('User id');
+    return res.status(error.statusCode).send(error);
   }
 
   if (!req.body.description) {
-    return res.status(400).send(ERRORS_LIST.MISSED_FIELD('Description'));
+    let error = ERRORS_LIST.MISSED_FIELD('Description');
+    return res.status(error.statusCode).send(error);
   }
 
   if (!req.body.duration) {
-    return res.status(400).send(ERRORS_LIST.MISSED_FIELD('Duration'));
+    let error = ERRORS_LIST.MISSED_FIELD('Duration');
+    return res.status(error.statusCode).send(error);
   }
 
   try {
     const parsedDate = req.body.date
-    ? format(new Date(req.body.date), 'yyyy-MM-dd')
-    : format(new Date(), 'yyyy-MM-dd');
+      ? format(new Date(req.body.date), 'yyyy-MM-dd')
+      : format(new Date(), 'yyyy-MM-dd');
 
     const data = {
-      _id: Number(req.body._id),
+      _id: req.body._id,
+      exerciseId: uuidv4(),
       description: req.body.description,
       duration: Number(req.body.duration),
       date: parsedDate,
@@ -46,13 +55,14 @@ async function createNewExercise(req: express.Request, res: express.Responses) {
 
     const db = await Database.open(DB_PATH_EXERCISES);
     await db.run(
-      'CREATE TABLE IF NOT EXISTS exercises(_id, description, duration, date)',
+      'CREATE TABLE IF NOT EXISTS exercises(_id, exerciseId, description, duration, date)',
     );
     await db.run(
-      `INSERT INTO exercises(_id, description, duration, date) 
+      `INSERT INTO exercises(_id, exerciseId, description, duration, date) 
       VALUES 
-        (?, ?, ?, ?)`,
+        (?, ?, ?, ?, ?)`,
       data._id,
+      data.exerciseId,
       data.description,
       data.duration,
       data.date,
@@ -60,7 +70,7 @@ async function createNewExercise(req: express.Request, res: express.Responses) {
 
     const response = {
       userId: data._id,
-      exerciseId: 0,
+      exerciseId: data.exerciseId,
       duration: data.duration,
       description: data.description,
       date: data.date,
@@ -83,7 +93,7 @@ async function getLogs(req: express.Request, res: express.Responses) {
   }
 
   try {
-    const userData = await getCurrentUser(Number(req.params._id));
+    const userData = await getCurrentUser(req.params._id);
 
     if (!userData) {
       return res
@@ -91,11 +101,13 @@ async function getLogs(req: express.Request, res: express.Responses) {
         .send(ERRORS_LIST.NOT_FOUND);
     }
 
-    const id = Number(req.params._id);
-    const { from, to, limit = 1000 } = req.query;
+    const id = req.params._id;
+    const { from, to, limit = 100000 } = req.query;
 
     const fromDate = from || '';
-    const toDate = to ? to : format(add(new Date(), { years: 100 }), 'yyyy-MM-dd');
+    const toDate = to
+      ? to
+      : format(add(new Date(), { years: 100 }), 'yyyy-MM-dd');
 
     const db = await Database.open(DB_PATH_EXERCISES);
     const totalAmount = await db.get(
@@ -129,10 +141,22 @@ async function getLogs(req: express.Request, res: express.Responses) {
 
     await db.close();
 
+    const mappedExercises = exercises.map(
+      (i: CreatedExerciseResponse) =>
+        ({
+          id: i.exerciseId,
+          description: i.description,
+          duration: i.duration,
+          date: i.date,
+        } as Exercise),
+    );
+
+    console.log(mappedExercises);
+
     const response = {
       ...userData,
       count: totalAmount['count(*)'],
-      logs: exercises,
+      logs: mappedExercises,
     } as UserExerciseLog;
 
     return res.status(200).json(response);
