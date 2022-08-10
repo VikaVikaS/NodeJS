@@ -126,6 +126,7 @@ async function getLogs(req: express.Request, res: express.Responses) {
         _id = ? AND
         date >= ? AND
         date <= ?
+      ORDER BY date ASC
       LIMIT ${limit}
       `,
       id,
