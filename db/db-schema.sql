@@ -4,8 +4,8 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS exercises (
-  _id TEXT PRIMARY KEY, 
-  exerciseId TEXT, 
+  _id TEXT, 
+  exerciseId TEXT PRIMARY KEY, 
   description TEXT, 
   duration INTEGER, 
   date TEXT

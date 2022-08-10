@@ -124,8 +124,8 @@ async function getLogs(req: express.Request, res: express.Responses) {
         exercises
       WHERE
         _id = ? AND
-        date > ? AND
-        date < ?
+        date >= ? AND
+        date <= ?
       LIMIT ${limit}
       `,
       id,
